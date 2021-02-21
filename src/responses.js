@@ -30,6 +30,10 @@ const shuffle = (array) => {
 
   return tempArray;
 };
+  // ALWAYS GIVE CREDIT - in your code comments and documentation
+  // Source: https://stackoverflow.com/questions/2219526/how-many-bytes-in-a-javascript-string/29955838
+  // Refactored to an arrow function by ACJ
+//const getBinarySize = (string) => Buffer.byteLength(string, 'utf8');
 
 /* const respond = (request, response, content, type) => {
   response.writeHead(200, { 'Content-Type': type });
@@ -37,7 +41,39 @@ const shuffle = (array) => {
   response.end();
 }; */
 
-const GetRandomJokeJSON = (limit = 1, type = 'application/json') => {
+/*const respondMetaJSON = (request, response, status, object) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Content-Length': getBinarySize(object),
+
+  };
+  // no content to send, just headers!
+  response.writeHead(status, headers);
+  response.end();
+};
+
+const respondMetaXML = (request, response, status, object) => {
+
+  const headers = {
+    'Content-Type': 'text/xml',
+    'Content-Length': getBinarySize(object),
+  };
+  // no content to send, just headers!
+  response.writeHead(status, headers);
+  response.end();
+};*/
+
+//Source:https://stackoverflow.com/questions/52311562/convert-javascript-object-array-to-xml
+const toXml = (data) => {
+  return data.reduce((result, el) => {
+   return result +  `<joke>
+            <q>${el.q}</q>
+            <a>${el.a}</a>
+         </joke>
+        `}, '');
+}
+
+const GetRandomJokeJSON = (limit = 1, type) => {
   let tempLimit = Number(limit); // cast limit to a number
   tempLimit = !tempLimit ? 1 : tempLimit; // default to 1 if max is not a number (falsy)
   tempLimit = tempLimit < 1 ? 1 : tempLimit; // default to 1 if max is less than 1
@@ -52,18 +88,17 @@ const GetRandomJokeJSON = (limit = 1, type = 'application/json') => {
   }
 
   if (type === 'text/xml') {
-    for (let i = 0; i < tempJokes.length; i += 1) {
-      const responseXML = `
-        <joke>
-            <q>${tempJokes[i].q}</q>
-            <a>${tempJokes[i].a}</a>
-        </joke>
-    `;
-      //responses.push(responseXML);
-        return(responseXML);
-    }
-    // return respond(request, response, responseXML, 'text/xml'); // bail out
-  }
+      const responses=[];
+      if(tempLimit>1){
+          for(let i =0; i<tempJokes.length; i+=1){
+              responses[i]=tempJokes[i];
+          }
+          return `<jokes> ${toXml(responses)}</jokes>`
+      }
+      else{
+          return toXml(tempJokes);
+      }
+      ;}
 
   // console.log(tempJokes);
   const jokesJSON = JSON.stringify(tempJokes);
@@ -71,19 +106,27 @@ const GetRandomJokeJSON = (limit = 1, type = 'application/json') => {
   return (jokesJSON);
 };
 
-const getRandomJokeResponse = (request, response, params, acceptedTypes) => {
-  //console.log(acceptedTypes.includes('text/xml'));
-  if (acceptedTypes.includes('text/xml') === false) {
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    response.write(GetRandomJokeJSON(params.limit));
-    response.end();
-  } else if (acceptedTypes.includes('text/xml') === true) {
-    response.writeHead(200, { 'Content-Type': 'text/xml' });
-      for (let i =0; i<params.limit; i+=1){
+const getRandomJokeResponse = (request, response, params, acceptedTypes, httpMethod) => {
+  //if (httpMethod === 'GET') {
+    if (acceptedTypes.includes('text/xml') === false) {
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.write(GetRandomJokeJSON(params.limit));
+      response.end();
+    } else if (acceptedTypes.includes('text/xml') === true) {
+      response.writeHead(200, { 'Content-Type': 'text/xml' });
+     // for (let i = 0; i < params.limit; i += 1) {
         response.write(GetRandomJokeJSON(params.limit, 'text/xml'));
-      }
-    response.end();
-  }
+      //}
+      response.end();
+    }
+  //}
+/*else if (httpMethod === 'HEAD') {
+    if (acceptedTypes.includes('text/xml') === false) {
+      respondMetaJSON(request, response, 200, GetRandomJokeJSON(params.limit));
+    } else if (acceptedTypes.includes('text/xml') === true) {
+      respondMetaXML(request, response, 200, GetRandomJokeJSON(params.limit, 'text/xml'));
+    }
+  }*/
 };
 
 module.exports.getRandomJokeResponse = getRandomJokeResponse;
