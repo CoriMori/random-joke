@@ -33,15 +33,9 @@ const shuffle = (array) => {
   // ALWAYS GIVE CREDIT - in your code comments and documentation
   // Source: https://stackoverflow.com/questions/2219526/how-many-bytes-in-a-javascript-string/29955838
   // Refactored to an arrow function by ACJ
-// const getBinarySize = (string) => Buffer.byteLength(string, 'utf8');
+const getBinarySize = (string) => Buffer.byteLength(string, 'utf8');
 
-/* const respond = (request, response, content, type) => {
-  response.writeHead(200, { 'Content-Type': type });
-  response.write(content);
-  response.end();
-}; */
-
-/* const respondMetaJSON = (request, response, status, object) => {
+const respondMetaJSON = (request, response, status, object) => {
   const headers = {
     'Content-Type': 'application/json',
     'Content-Length': getBinarySize(object),
@@ -53,7 +47,6 @@ const shuffle = (array) => {
 };
 
 const respondMetaXML = (request, response, status, object) => {
-
   const headers = {
     'Content-Type': 'text/xml',
     'Content-Length': getBinarySize(object),
@@ -61,7 +54,7 @@ const respondMetaXML = (request, response, status, object) => {
   // no content to send, just headers!
   response.writeHead(status, headers);
   response.end();
-}; */
+};
 
 // Source:https://stackoverflow.com/questions/52311562/convert-javascript-object-array-to-xml
 const toXml = (data) => data.reduce((result, el) => `${result}<joke>
@@ -102,27 +95,24 @@ const GetRandomJokeJSON = (limit = 1, type) => {
   return (jokesJSON);
 };
 
-const getRandomJokeResponse = (request, response, params, acceptedTypes) => {
-  // if (httpMethod === 'GET') {
-  if (acceptedTypes.includes('text/xml') === false) {
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    response.write(GetRandomJokeJSON(params.limit));
-    response.end();
-  } else if (acceptedTypes.includes('text/xml') === true) {
-    response.writeHead(200, { 'Content-Type': 'text/xml' });
-    // for (let i = 0; i < params.limit; i += 1) {
-    response.write(GetRandomJokeJSON(params.limit, 'text/xml'));
-    // }
-    response.end();
-  }
-  // }
-/* else if (httpMethod === 'HEAD') {
+const getRandomJokeResponse = (request, response, params, acceptedTypes, httpMethod) => {
+  if (httpMethod === 'GET') {
+    if (acceptedTypes.includes('text/xml') === false) {
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.write(GetRandomJokeJSON(params.limit));
+      response.end();
+    } else if (acceptedTypes.includes('text/xml') === true) {
+      response.writeHead(200, { 'Content-Type': 'text/xml' });
+      response.write(GetRandomJokeJSON(params.limit, 'text/xml'));
+      response.end();
+    }
+  } else if (httpMethod === 'HEAD') {
     if (acceptedTypes.includes('text/xml') === false) {
       respondMetaJSON(request, response, 200, GetRandomJokeJSON(params.limit));
     } else if (acceptedTypes.includes('text/xml') === true) {
       respondMetaXML(request, response, 200, GetRandomJokeJSON(params.limit, 'text/xml'));
     }
-  } */
+  }
 };
 
 module.exports.getRandomJokeResponse = getRandomJokeResponse;
