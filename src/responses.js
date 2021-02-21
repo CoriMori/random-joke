@@ -9,7 +9,7 @@ const jokes = [{ q: 'What do you call a very small valentine?', a: 'A valen-tiny
   { q: 'Is this pool safe for diving?', a: 'It deep ends.' },
   { q: 'Dad, can you put my shoes on?', a: 'I dont think theyll fit me.' }];
 
-//source: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+// source: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 const shuffle = (array) => {
   const tempArray = array;
   let currentIndex = tempArray.length;
@@ -31,7 +31,13 @@ const shuffle = (array) => {
   return tempArray;
 };
 
-const GetRandomJokeJSON = (limit = 1) => {
+/* const respond = (request, response, content, type) => {
+  response.writeHead(200, { 'Content-Type': type });
+  response.write(content);
+  response.end();
+}; */
+
+const GetRandomJokeJSON = (limit = 1, type = 'application/json') => {
   let tempLimit = Number(limit); // cast limit to a number
   tempLimit = !tempLimit ? 1 : tempLimit; // default to 1 if max is not a number (falsy)
   tempLimit = tempLimit < 1 ? 1 : tempLimit; // default to 1 if max is less than 1
@@ -45,14 +51,39 @@ const GetRandomJokeJSON = (limit = 1) => {
     tempJokes.push(randJoke);
   }
 
-  //console.log(tempJokes);
-  return JSON.stringify(tempJokes);
+  if (type === 'text/xml') {
+    for (let i = 0; i < tempJokes.length; i += 1) {
+      const responseXML = `
+        <joke>
+            <q>${tempJokes[i].q}</q>
+            <a>${tempJokes[i].a}</a>
+        </joke>
+    `;
+      //responses.push(responseXML);
+        return(responseXML);
+    }
+    // return respond(request, response, responseXML, 'text/xml'); // bail out
+  }
+
+  // console.log(tempJokes);
+  const jokesJSON = JSON.stringify(tempJokes);
+  // return respond(request, response, jokesJSON, 'application/json'); // default
+  return (jokesJSON);
 };
 
-const getRandomJokeResponse = (request, response, params) => {
-  response.writeHead(200, { 'Content-Type': 'application/json' }); // send response headers
-  response.write(GetRandomJokeJSON(params.limit)); // send content
-  response.end(); // close connection
+const getRandomJokeResponse = (request, response, params, acceptedTypes) => {
+  //console.log(acceptedTypes.includes('text/xml'));
+  if (acceptedTypes.includes('text/xml') === false) {
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.write(GetRandomJokeJSON(params.limit));
+    response.end();
+  } else if (acceptedTypes.includes('text/xml') === true) {
+    response.writeHead(200, { 'Content-Type': 'text/xml' });
+      for (let i =0; i<params.limit; i+=1){
+        response.write(GetRandomJokeJSON(params.limit, 'text/xml'));
+      }
+    response.end();
+  }
 };
 
 module.exports.getRandomJokeResponse = getRandomJokeResponse;
