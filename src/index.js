@@ -30,10 +30,10 @@ const onRequest = (request, response) => {
   // console.log("parsedUrl=", parsedUrl);
   // console.log("pathname=", pathname);
 
-  //const httpMethod = request.method;
+  // const httpMethod = request.method;
   const params = query.parse(parsedUrl.query);
-   // console.log(request.method);
-    console.log(params);
+  // console.log(request.method);
+  //console.log(params);
 
   if (urlStruct[pathname]) {
     urlStruct[pathname](request, response, params, acceptedTypes);
