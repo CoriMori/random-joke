@@ -69,7 +69,7 @@ const GetRandomJokeJSON = (limit = 1, type) => {
   tempLimit = tempLimit < 1 ? 1 : tempLimit; // default to 1 if max is less than 1
   tempLimit = tempLimit > 10 ? 10 : tempLimit; // default to 1 if max is less than 1
 
-  const tempJokes = [];
+  let tempJokes=[];
   shuffle(jokes);
   for (let i = 0; i < tempLimit; i += 1) {
     const number = Math.floor(Math.random() * jokes.length);
@@ -88,7 +88,7 @@ const GetRandomJokeJSON = (limit = 1, type) => {
 
     return toXml(tempJokes);
   }
-
+    
   // console.log(tempJokes);
   const jokesJSON = JSON.stringify(tempJokes);
   // return respond(request, response, jokesJSON, 'application/json'); // default
